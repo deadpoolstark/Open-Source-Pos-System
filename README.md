@@ -1,4 +1,4 @@
-# Project Kaapi: Point-Of-Sale System ☕
+# Point-Of-Sale System ☕
 
 A sleek, modern, and role-based POS system designed for coffee shops and small businesses. Built with **React**, **Vite**, and **Firebase Firestore**.
 
