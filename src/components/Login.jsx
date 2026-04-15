@@ -1,22 +1,36 @@
 import React, { useState } from 'react';
 import { Coffee, Lock, User, AlertCircle } from 'lucide-react';
 import { storeConfig } from '../config';
+import { authenticateUser, seedInitialUsers } from '../firebase';
+import { useEffect } from 'react';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  // Auto-seed for the first time if needed
+  useEffect(() => {
+    // seedInitialUsers(); // Uncomment this if you want to force seed on first load
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    if (username === 'admin' && password === 'admin123') {
-      onLogin({ username: 'admin', role: 'admin' });
-    } else if (username === 'staff-1' && password === 'staff123') {
-      onLogin({ username: 'staff-1', role: 'employee' });
-    } else {
-      setError('Invalid username or password');
+    try {
+      const result = await authenticateUser(username, password);
+      if (result.success) {
+        onLogin(result.user);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError('Connection failed. Please check your internet.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,7 +136,7 @@ const Login = ({ onLogin }) => {
             </div>
           )}
 
-          <button type="submit" style={{
+          <button type="submit" disabled={loading} style={{
             width: '100%',
             padding: '14px',
             background: 'var(--primary)',
@@ -131,9 +145,11 @@ const Login = ({ onLogin }) => {
             fontSize: '1rem',
             fontWeight: '600',
             transition: 'all 0.2s',
-            marginTop: '8px'
+            marginTop: '8px',
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? 'not-allowed' : 'pointer'
           }}>
-            Login
+            {loading ? 'Authenticating...' : 'Login'}
           </button>
         </form>
       </div>

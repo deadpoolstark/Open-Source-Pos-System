@@ -1,23 +1,16 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc, where, setDoc } from "firebase/firestore";
 
 // TODO: Replace with your actual Firebase project config
 // from the Firebase Console -> Project Settings
 const firebaseConfig = {
-  apiKey: "AIzaSyDCshANEmeheFXGVT1WINspN48iJMJjjdw",
-
-  authDomain: "project-kaapi-pos-system.firebaseapp.com",
-
-  projectId: "project-kaapi-pos-system",
-
-  storageBucket: "project-kaapi-pos-system.firebasestorage.app",
-
-  messagingSenderId: "827328421374",
-
-  appId: "1:827328421374:web:a2908f2d51572041e274af",
-
-  measurementId: "G-1DXP6QC4FQ"
-
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 let app, db;
@@ -119,4 +112,47 @@ export const updateTransactionStatus = async (id, status) => {
       setTimeout(() => resolve(true), 300);
     });
   }
+};
+
+/**
+ * AUTHENTICATION SYSTEM
+ */
+export const authenticateUser = async (username, password) => {
+  if (db) {
+    try {
+      const q = query(collection(db, "users"), where("username", "==", username), where("password", "==", password));
+      const snap = await getDocs(q);
+      
+      if (!snap.empty) {
+        const userData = snap.docs[0].data();
+        return { success: true, user: { username, role: userData.role } };
+      }
+      return { success: false, message: "Invalid credentials" };
+    } catch (e) {
+      console.error("Auth error: ", e);
+      return { success: false, message: "Connection error" };
+    }
+  } else {
+    // Local fallback
+    if (username === 'admin' && password === 'admin123') {
+      return { success: true, user: { username: 'admin', role: 'admin' } };
+    }
+    return { success: false, message: "Invalid credentials (Local)" };
+  }
+};
+
+/**
+ * INITIAL SETUP: Run this once to setup your first users
+ */
+export const seedInitialUsers = async () => {
+  if (!db) return;
+  const users = [
+    { username: "admin", password: "admin123", role: "admin" },
+    { username: "staff-1", password: "staff123", role: "employee" }
+  ];
+
+  for (const user of users) {
+    await setDoc(doc(db, "users", user.username), user);
+  }
+  console.log("Users seeded successfully!");
 };
