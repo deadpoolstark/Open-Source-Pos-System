@@ -86,8 +86,13 @@ function App() {
   };
 
   const handleCieCheckout = async () => {
-    if (cartItems.length === 0) return;
+    if (cartItems.length === 0) {
+      console.warn("CIE attempted with empty cart");
+      return;
+    }
+    
     setIsCheckingOut(true);
+    console.log("Starting CIE Checkout for items:", cartItems);
 
     const transactionData = {
       items: cartItems.map(item => ({
@@ -103,13 +108,17 @@ function App() {
       createdBy: user.username
     };
 
+    console.log("CIE payload generated:", transactionData);
+
     try {
       const transactionId = await saveTransaction(transactionData);
+      console.log("CIE Transaction saved successfully. ID:", transactionId);
       alert(`CIE Success! Transaction ID: ${transactionId}`);
       setCartItems([]);
       setActiveCategory('All');
     } catch (error) {
-      alert('CIE Checkout failed!');
+      console.error("CIE Transaction FAILED:", error);
+      alert('CIE Checkout failed! Check the browser console for technical details.');
     } finally {
       setIsCheckingOut(false);
     }

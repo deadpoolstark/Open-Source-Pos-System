@@ -77,7 +77,10 @@ const Cart = ({ cartItems, updateQuantity, clearCart, checkout, cieCheckout, isC
 
           <div style={{ display: 'flex', gap: '12px' }}>
             <button 
-              onClick={cieCheckout}
+              onClick={() => {
+                console.log("CIE Button Clicked!");
+                cieCheckout();
+              }}
               disabled={isCheckingOut}
               style={{
                 flex: '0 0 80px',
