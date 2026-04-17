@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Zap } from 'lucide-react';
 import { storeConfig } from '../config';
 
-const Cart = ({ cartItems, updateQuantity, clearCart, checkout, isCheckingOut }) => {
+const Cart = ({ cartItems, updateQuantity, clearCart, checkout, cieCheckout, isCheckingOut }) => {
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = subtotal * storeConfig.taxRate;
   const total = subtotal + tax;
@@ -75,37 +75,68 @@ const Cart = ({ cartItems, updateQuantity, clearCart, checkout, isCheckingOut })
             <span style={{ color: 'var(--primary)' }}>{storeConfig.currencySymbol}{total.toFixed(2)}</span>
           </div>
 
-          <button 
-            onClick={checkout}
-            disabled={isCheckingOut}
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: 'var(--primary)',
-              color: '#fff',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'background 0.2s',
-              opacity: isCheckingOut ? 0.7 : 1,
-              cursor: isCheckingOut ? 'not-allowed' : 'pointer'
-            }}
-            onMouseOver={(e) => { if(!isCheckingOut) e.currentTarget.style.background = 'var(--primary-hover)'; }}
-            onMouseOut={(e) => { if(!isCheckingOut) e.currentTarget.style.background = 'var(--primary)'; }}
-          >
-            {isCheckingOut ? (
-              <span className="loader">Processing...</span>
-            ) : (
-              <>
-                <CreditCard size={20} />
-                Checkout
-              </>
-            )}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              onClick={cieCheckout}
+              disabled={isCheckingOut}
+              style={{
+                flex: '0 0 80px',
+                padding: '16px 0',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-main)',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'all 0.2s',
+                opacity: isCheckingOut ? 0.7 : 1,
+                cursor: isCheckingOut ? 'not-allowed' : 'pointer'
+              }}
+              onMouseOver={(e) => { if(!isCheckingOut) e.currentTarget.style.background = 'var(--bg-dark)'; }}
+              onMouseOut={(e) => { if(!isCheckingOut) e.currentTarget.style.background = 'var(--bg-card)'; }}
+              title="CIE Order (Total: 0)"
+            >
+              <Zap size={18} />
+              CIE
+            </button>
+
+            <button 
+              onClick={checkout}
+              disabled={isCheckingOut}
+              style={{
+                flex: 1,
+                padding: '16px',
+                background: 'var(--primary)',
+                color: '#fff',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'background 0.2s',
+                opacity: isCheckingOut ? 0.7 : 1,
+                cursor: isCheckingOut ? 'not-allowed' : 'pointer'
+              }}
+              onMouseOver={(e) => { if(!isCheckingOut) e.currentTarget.style.background = 'var(--primary-hover)'; }}
+              onMouseOut={(e) => { if(!isCheckingOut) e.currentTarget.style.background = 'var(--primary)'; }}
+            >
+              {isCheckingOut ? (
+                <span className="loader">Processing...</span>
+              ) : (
+                <>
+                  <CreditCard size={20} />
+                  Checkout
+                </>
+              )}
+            </button>
+          </div>
         </div>
       )}
     </div>

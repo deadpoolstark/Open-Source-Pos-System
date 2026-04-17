@@ -85,6 +85,36 @@ function App() {
     }
   };
 
+  const handleCieCheckout = async () => {
+    if (cartItems.length === 0) return;
+    setIsCheckingOut(true);
+
+    const transactionData = {
+      items: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
+      subtotal: 0,
+      tax: 0,
+      total: 0,
+      status: "CIE",
+      createdBy: user.username
+    };
+
+    try {
+      const transactionId = await saveTransaction(transactionData);
+      alert(`CIE Success! Transaction ID: ${transactionId}`);
+      setCartItems([]);
+      setActiveCategory('All');
+    } catch (error) {
+      alert('CIE Checkout failed!');
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
   if (!user) {
     return <Login onLogin={handleLogin} />;
   }
@@ -139,6 +169,7 @@ function App() {
                 updateQuantity={updateQuantity} 
                 clearCart={() => setCartItems([])} 
                 checkout={handleCheckout}
+                cieCheckout={handleCieCheckout}
                 isCheckingOut={isCheckingOut}
               />
             </div>
